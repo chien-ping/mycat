@@ -1,0 +1,11 @@
+http://blog.csdn.net/u011686226/article/details/77623129
+
+
+
+http://blog.csdn.net/u013235478/article/details/53178657
+分页查询（无offset，无orderby的情况）select * from table limit 
+2;返回的结果集取决于哪个DB节点最先返回结果给Mycat,相同情况下，同一个SQL，在Mycat上执行时会有不同的返回结果。!!!分页查询（无offset，有orderby的情况）select * from table order by id limit 2;接收到各个DB节点的返回结果后，对其进行最小堆运算，计算出所有结果集中最小的两条记录返回给应用。分页查询（有offset，有orderby的情况）select * from table order by id limit 5,2; limit m,n 的SQL语句时会对其进行改写，改写成 limit 0, m+n 来保证查询结果的逻辑正确性。所以，Mycat发送到后端DB上的SQL语句是select * from table order by id limit 0,7;对于有 t 个DB节点的全分片 limit m, n 操作，Mycat需要处理的数据量为 (m+n)*t 个。比如实际应用中有50个DB节点，要执行limit 1000,10操作，则Mycat处理的数据量为 50500 条，返回结果集为10，当偏移量更大时，内存和CPU资源的消耗则是数十倍增加。！！！
+
+
+
+
